@@ -20,9 +20,7 @@ class LayerMetadataDetail extends React.Component {
    * @return {void}
    */
   toggleDateRanges(e) {
-    // var { layer, toggleDateRangesExpansion } = this.props;
     this.setState({ isDateRangesExpanded: !this.state.isDateRangesExpanded });
-    // toggleDateRangesExpansion(layer.id);
   }
 
   getListItems(layer, firstDateRange) {
@@ -260,7 +258,7 @@ class LayerMetadataDetail extends React.Component {
     const splitIdx = title.indexOf('(');
     const attrs = title.slice(splitIdx);
     const titleName = title.slice(0, splitIdx - 1);
-    return splitIdx < 0 || title.length < 40
+    return splitIdx < 0
       ? <h3> {title} </h3>
       : (
         <>
