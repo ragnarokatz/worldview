@@ -273,7 +273,9 @@ class LayerMetadataDetail extends React.Component {
   render() {
     if (!this.props.layer) {
       return (
-        <h3 className="no-results"> No item selected. </h3>
+        <div className="no-selection">
+          <h3 > No item selected. </h3>
+        </div>
       );
     }
     const { layer, height } = this.props;
