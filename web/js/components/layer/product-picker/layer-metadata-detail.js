@@ -276,9 +276,10 @@ class LayerMetadataDetail extends React.Component {
         </div>
       );
     }
-    const { layer, height } = this.props;
+    const { layer, height, selectedProjection } = this.props;
     const { title, subtitle, track, metadata } = layer;
     const layerTitle = !track ? title : `${title} (${getOrbitTrackTitle(layer)})`;
+    const previewUrl = 'images/layers/previews/' + selectedProjection + '/' + layer.id + '.jpg';
 
     return (
       <Scrollbars style={{ maxHeight: height + 'px' }}>
@@ -286,6 +287,11 @@ class LayerMetadataDetail extends React.Component {
           <div className="layers-all-header">
             {!track ? this.renderSplitTitle(layerTitle) : <h3>{layerTitle}</h3>}
             {subtitle && <h5>{subtitle}</h5>}
+          </div>
+          <div className="text-center">
+            <a href={previewUrl} rel="noopener noreferrer" target="_blank">
+              <img className="img-fluid layer-preview" src={previewUrl} />
+            </a>
           </div>
           <div className="source-metadata visible">
             {this.renderLayerDates()}
@@ -299,7 +305,8 @@ class LayerMetadataDetail extends React.Component {
 
 LayerMetadataDetail.propTypes = {
   height: PropTypes.number,
-  layer: PropTypes.object
+  layer: PropTypes.object,
+  selectedProjection: PropTypes.string
 };
 
 export default LayerMetadataDetail;
