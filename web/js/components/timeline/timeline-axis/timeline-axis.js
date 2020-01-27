@@ -1278,9 +1278,19 @@ class TimelineAxis extends Component {
     } = this.state;
 
     let lineCoverageOptions;
+    let rounded;
     if (!lodashIsEmpty(matchingTimelineCoverage)) {
       lineCoverageOptions = this.getLineDimensions();
+      // console.log(transformX + lineCoverageOptions.leftOffset, lineCoverageOptions);
+      // TODO: figure out rounding svg line edges, difficult do to leading edges while dragging should be straight, but may not be necessary
+      // rounded = lineCoverageOptions.leftOffset > 0 || (lineCoverageOptions.leftOffset === 0 && lineCoverageOptions.width < axisWidth)
+      //   ? lineCoverageOptions.width < axisWidth
+      //     ? 5
+      //     : 0
+      //   : 0;
+      rounded = 0;
     }
+
     return (
       <React.Fragment>
         <div className="timeline-axis-container"
@@ -1317,13 +1327,13 @@ class TimelineAxis extends Component {
                     visibility: lineCoverageOptions.visible ? 'visible' : 'hidden',
                     margin: '0 0 6px 0'
                   }}
-                  rx={5}
-                  ry={5}
+                  rx={rounded}
+                  ry={rounded}
                   width={lineCoverageOptions.width}
                   height={15}
                   transform={`translate(${transformX + lineCoverageOptions.leftOffset}, 0)`}
-                  fill={'#e83d2a'}
-                  stroke={'#e83d2a'}
+                  fill={'#d54e21'}
+                  stroke={'#d54e21'}
                   strokeWidth={1}
                   />
                 </g>

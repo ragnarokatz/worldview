@@ -1042,8 +1042,8 @@ class Timeline extends React.Component {
                     draggerSelected={draggerSelected}
                     draggerPosition={draggerPosition}
                     draggerPositionB={draggerPositionB}
-                    // isDataCoveragePanelOpen={this.state.isDataCoveragePanelOpen}
-                    isDataCoveragePanelOpen={true}
+                    isDataCoveragePanelOpen={this.state.isDataCoveragePanelOpen}
+                    // isDataCoveragePanelOpen={true}
                   />
 
                   {isAnimationWidgetOpen &&
@@ -1111,8 +1111,8 @@ class Timeline extends React.Component {
                       hasSubdailyLayers={hasSubdailyLayers}
                       showDraggerTime={showDraggerTime}
                       showHoverLine={showHoverLine}
-                      // isDataCoveragePanelOpen={this.state.isDataCoveragePanelOpen}
-                      isDataCoveragePanelOpen={true}
+                      isDataCoveragePanelOpen={this.state.isDataCoveragePanelOpen}
+                      // isDataCoveragePanelOpen={true}
                     />
                     : null
                   }
@@ -1133,8 +1133,8 @@ class Timeline extends React.Component {
                     setMatchingTimelineCoverage={this.setMatchingTimelineCoverage}
                     matchingTimelineCoverage={this.state.matchingTimelineCoverage}
                     toggleDataCoveragePanel={this.toggleDataCoveragePanel}
-                    // isDataCoveragePanelOpen={this.state.isDataCoveragePanelOpen}
-                    isDataCoveragePanelOpen={true}
+                    isDataCoveragePanelOpen={this.state.isDataCoveragePanelOpen}
+                    // isDataCoveragePanelOpen={true}
                   />
                 }
 

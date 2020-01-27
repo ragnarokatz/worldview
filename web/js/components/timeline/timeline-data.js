@@ -338,18 +338,18 @@ class TimelineData extends Component {
                               let rangeOptions;
                               // multi day range in DAY timescale
                               // TODO: expand based on what a user can see
-                              if (rangeInterval !== 1 && this.props.timeScale === 'day') {
+                              if (rangeInterval !== 1) {
                                 const startDateLimit = new Date(this.props.frontDate);
                                 let endDateLimit = new Date(this.props.backDate);
                                 if (new Date(this.props.appNow) < endDateLimit) {
                                   endDateLimit = new Date(this.props.appNow);
                                 }
-
+                                // console.log(endDateLimit);
                                 let dateIntervalStartDates = [];
                                 if (new Date(rangeStart) < endDateLimit && new Date(rangeEnd) > startDateLimit) {
                                   dateIntervalStartDates = datesinDateRanges(layer, endDateLimit, startDateLimit, endDateLimit);
                                 }
-
+                                // console.log(dateIntervalStartDates);
                                 // add date intervals to object to catch repeats
                                 dateIntervalStartDates.forEach((dateInt) => {
                                   const dateIntFormatted = dateInt.toISOString();
@@ -366,8 +366,13 @@ class TimelineData extends Component {
                                     const minYear = rangeDate.getUTCFullYear();
                                     const minMonth = rangeDate.getUTCMonth();
                                     const minDay = rangeDate.getUTCDate();
-                                    const rangeDateEnd = new Date(minYear, minMonth, minDay + rangeInterval);
+                                    const rangeDateEndLocal = new Date(minYear, minMonth, minDay + rangeInterval);
+                                    const rangeDateEnd = new Date(rangeDateEndLocal.getTime() - (rangeDateEndLocal.getTimezoneOffset() * 60000));
                                     rangeOptions = this.getLineDimensions(layer, rangeDate, rangeDateEnd);
+
+                                    // console.log(rangeDateEndLocal, rangeDateEnd);
+                                    // console.log(rangeDate, rangeDateEnd);
+                                    // console.log(rangeOptions);
 
                                     const cleanRangeStart = rangeDate.toISOString().replace(/[.:]/g, '_');
                                     const cleanRangeEnd = rangeDateEnd.toISOString().replace(/[.:]/g, '_');
@@ -376,6 +381,7 @@ class TimelineData extends Component {
                                       : enabled ? '#0084eb' : 'grey';
 
                                     // console.log(`data-coverage-line-${layer.id}-${cleanRangeStart}-${cleanRangeEnd}`);
+                                    // console.log(rangeOptions.width);
                                     return rangeOptions.visible && (
                                       <div
                                         id={`data-coverage-line-${layer.id}-${cleanRangeStart}-${cleanRangeEnd}`}
@@ -385,7 +391,7 @@ class TimelineData extends Component {
                                         style={{
                                           position: 'absolute',
                                           left: rangeOptions.leftOffset,
-                                          width: `${rangeOptions.width}px`,
+                                          width: `${Math.max(rangeOptions.width, 0)}px`,
                                           backgroundColor: backgroundMulti,
                                           borderRadius: rangeOptions.borderRadius
                                         }}>

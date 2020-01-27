@@ -52,7 +52,7 @@ class AxisHoverLine extends PureComponent {
     }
 
     return (
-      // (showHover || panelDraggerHoverLine) &&
+      (showHover || panelDraggerHoverLine) &&
       <svg className="axis-hover-line-container" width={axisWidth} height={lineHeight} style={{ zIndex: 6 }}>
         <line className="axis-hover-line"
           stroke="#0f51c0" strokeWidth="2" x1="0" x2="0" y1="0" y2={lineHeightInner}

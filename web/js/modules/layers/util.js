@@ -93,6 +93,7 @@ export function prevDateInDateRange(def, date, dateArray) {
   // check for potential next date in function passed dateArray
   const next = dateArray[closestDateIndex + 1] || null;
   const previous = closestDate ? new Date(closestDate.getTime()) : date;
+  console.log(previous, next);
   return { previous, next };
 };
 
@@ -111,6 +112,7 @@ export function datesinDateRanges(def, date, startDateLimit, endDateLimit) {
   let currentDate = new Date(date.getTime());
 
   lodashEach(def.dateRanges, (dateRange) => {
+    console.log(dateRange);
     let { dateInterval } = dateRange;
     dateInterval = Number(dateInterval);
     let yearDifference;
@@ -191,24 +193,44 @@ export function datesinDateRanges(def, date, startDateLimit, endDateLimit) {
       for (i = 0; i <= (dayDifference + 1); i++) {
         let day = new Date(minYear, minMonth, minDay + i * dateInterval);
         day = new Date(day.getTime() - (day.getTimezoneOffset() * 60000));
+        console.log(day.toISOString());
         if (dateArray.length > 0) {
           // prevent earlier dates from being added after later dates while building dateArray
           if (day < dateArray[dateArray.length - 1]) {
+            let endDateFound = false;
+            // let endIndex = dateArray.length - 1;
+            for (let j = dateArray.length - 1; j >= 0; j--) {
+              if (!endDateFound) {
+                const dateCheck = dateArray[j];
+
+                const dayTime = day.getTime();
+                const dateCheckTime = dateCheck.getTime();
+
+                if (dayTime <= dateCheckTime) {
+                  dateArray.pop();
+                } else {
+                  dateArray[dateArray.length - 1] = day;
+                  endDateFound = true;
+                  continue;
+                }
+              }
+            }
             continue;
           }
         }
 
-        if (dateArray.length > 0) {
-          // prevent earlier dates from being added after later dates while building dateArray
-          if (day < dateArray[dateArray.length - 1]) {
-            dateArray[dateArray.length - 1] = day;
-            continue;
-          }
-        }
+        // if (dateArray.length > 0) {
+        //   // prevent earlier dates from being added after later dates while building dateArray
+        //   if (day < dateArray[dateArray.length - 1]) {
+        //     dateArray[dateArray.length - 1] = day;
+        //     continue;
+        //   }
+        // }
 
         if (minStartDayDate) {
           const dayTime = day.getTime();
           const minStartDayDateTime = minStartDayDate.getTime();
+          console.log(day > minStartDayDate, day < maxDayDate);
           if (dayTime === minStartDayDateTime || (day > minStartDayDate && day < maxDayDate)) {
             dateArray.push(day);
           }
@@ -248,7 +270,7 @@ export function datesinDateRanges(def, date, startDateLimit, endDateLimit) {
       }
     }
   });
-  // console.log(dateArray, dateArray[0], dateArray[dateArray.length - 1]);
+  console.log(dateArray, dateArray[0], dateArray[dateArray.length - 1]);
   return dateArray;
 };
 
