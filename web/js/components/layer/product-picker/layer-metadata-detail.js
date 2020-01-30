@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { getOrbitTrackTitle } from '../../../modules/layers/util';
 import util from '../../../util/util.js';
-import { ListGroup, ListGroupItem } from 'reactstrap';
+import { ListGroup, ListGroupItem, Button } from 'reactstrap';
 import Scrollbars from '../../util/scrollbar';
 
 class LayerMetadataDetail extends React.Component {
@@ -11,6 +11,15 @@ class LayerMetadataDetail extends React.Component {
     this.state = {
       isDateRangesExpanded: false
     };
+  }
+
+  toggleLayer() {
+    const { addLayer, removeLayer, isActive, layer } = this.props;
+    if (isActive) {
+      removeLayer(layer.id);
+    } else {
+      addLayer(layer.id);
+    }
   }
 
   /**
@@ -276,10 +285,11 @@ class LayerMetadataDetail extends React.Component {
         </div>
       );
     }
-    const { layer, height, selectedProjection } = this.props;
+    const { layer, height, selectedProjection, isActive } = this.props;
     const { title, subtitle, track, metadata } = layer;
     const layerTitle = !track ? title : `${title} (${getOrbitTrackTitle(layer)})`;
     const previewUrl = 'images/layers/previews/' + selectedProjection + '/' + layer.id + '.jpg';
+    const buttonText = isActive ? 'Remove from map' : 'Add to map';
 
     return (
       <Scrollbars style={{ maxHeight: height + 'px' }}>
@@ -292,6 +302,11 @@ class LayerMetadataDetail extends React.Component {
             <a href={previewUrl} rel="noopener noreferrer" target="_blank">
               <img className="img-fluid layer-preview" src={previewUrl} />
             </a>
+          </div>
+          <div className="text-center">
+            <Button className="add-to-map-btn text-center" onClick={this.toggleLayer.bind(this)}>
+              {buttonText}
+            </Button>
           </div>
           <div className="source-metadata visible">
             {this.renderLayerDates()}
