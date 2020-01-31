@@ -289,8 +289,9 @@ class LayerMetadataDetail extends React.Component {
     const { title, subtitle, track, metadata } = layer;
     const layerTitle = !track ? title : `${title} (${getOrbitTrackTitle(layer)})`;
     const previewUrl = 'images/layers/previews/' + selectedProjection + '/' + layer.id + '.jpg';
-    const buttonText = isActive ? 'Remove from map' : 'Add to map';
-
+    const buttonText = isActive ? 'Remove Layer' : 'Add Layer';
+    const btnClass = isActive ? 'add-to-map-btn text-center is-active' : 'add-to-map-btn text-center';
+    const btnIconClass = isActive ? 'fa fa-minus' : 'fa fa-plus';
     return (
       <Scrollbars style={{ maxHeight: height + 'px' }}>
         <div className="layers-all-layer">
@@ -304,7 +305,8 @@ class LayerMetadataDetail extends React.Component {
             </a>
           </div>
           <div className="text-center">
-            <Button className="add-to-map-btn text-center" onClick={this.toggleLayer.bind(this)}>
+            <Button className={btnClass} onClick={this.toggleLayer.bind(this)}>
+              <i className={btnIconClass} aria-hidden="true"></i>
               {buttonText}
             </Button>
           </div>
@@ -319,8 +321,11 @@ class LayerMetadataDetail extends React.Component {
 }
 
 LayerMetadataDetail.propTypes = {
+  addLayer: PropTypes.func,
   height: PropTypes.number,
+  isActive: PropTypes.bool,
   layer: PropTypes.object,
+  removeLayer: PropTypes.func,
   selectedProjection: PropTypes.string
 };
 
