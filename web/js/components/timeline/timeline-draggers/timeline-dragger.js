@@ -42,14 +42,18 @@ class Dragger extends PureComponent {
     const x = d.x;
     const deltaX = d.deltaX;
 
-    const draggerAtStart = x <= -22;
+    const draggerAtStart = x <= -15;
     const draggerAtEnd = x + 24 >= axisWidth;
 
     this.setState({
       isHoveredDragging: true
     });
 
-    // if at start or end of axis, return false to stop dragger
+    // if dragger is positioned near axis edge from panning axis vs. dragging dragger
+    if (this.props.draggerPosition <= -15 || this.props.draggerPosition + 24 >= axisWidth) {
+      this.props.handleDragDragger(e, d);
+    }
+    // // if at start or end of axis, return false to stop dragger
     // which will initiate an axis update towards that drag direction
     if (deltaX < 0 && draggerAtStart) {
       return false;
