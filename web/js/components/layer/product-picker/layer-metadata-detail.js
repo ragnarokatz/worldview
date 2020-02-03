@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import { getOrbitTrackTitle } from '../../../modules/layers/util';
 import util from '../../../util/util.js';
 import { ListGroup, ListGroupItem, Button } from 'reactstrap';
-import Scrollbars from '../../util/scrollbar';
 
 class LayerMetadataDetail extends React.Component {
   constructor(props) {
@@ -285,7 +284,7 @@ class LayerMetadataDetail extends React.Component {
         </div>
       );
     }
-    const { layer, height, selectedProjection, isActive } = this.props;
+    const { layer, selectedProjection, isActive } = this.props;
     const { title, subtitle, track, metadata } = layer;
     const layerTitle = !track ? title : `${title} (${getOrbitTrackTitle(layer)})`;
     const previewUrl = 'images/layers/previews/' + selectedProjection + '/' + layer.id + '.jpg';
@@ -293,36 +292,33 @@ class LayerMetadataDetail extends React.Component {
     const btnClass = isActive ? 'add-to-map-btn text-center is-active' : 'add-to-map-btn text-center';
     const btnIconClass = isActive ? 'fa fa-minus' : 'fa fa-plus';
     return (
-      <Scrollbars style={{ maxHeight: height + 'px' }}>
-        <div className="layers-all-layer">
-          <div className="layers-all-header">
-            {!track ? this.renderSplitTitle(layerTitle) : <h3>{layerTitle}</h3>}
-            {subtitle && <h5>{subtitle}</h5>}
-          </div>
-          <div className="text-center">
-            <a href={previewUrl} rel="noopener noreferrer" target="_blank">
-              <img className="img-fluid layer-preview" src={previewUrl} />
-            </a>
-          </div>
-          <div className="text-center">
-            <Button className={btnClass} onClick={this.toggleLayer.bind(this)}>
-              <i className={btnIconClass} aria-hidden="true"></i>
-              {buttonText}
-            </Button>
-          </div>
-          <div className="source-metadata visible">
-            {this.renderLayerDates()}
-            <div dangerouslySetInnerHTML={{ __html: metadata }} />
-          </div>
+      <div className="layers-all-layer">
+        <div className="layers-all-header">
+          {!track ? this.renderSplitTitle(layerTitle) : <h3>{layerTitle}</h3>}
+          {subtitle && <h5>{subtitle}</h5>}
         </div>
-      </Scrollbars>
+        <div className="text-center">
+          <a href={previewUrl} rel="noopener noreferrer" target="_blank">
+            <img className="img-fluid layer-preview" src={previewUrl} />
+          </a>
+        </div>
+        <div className="text-center">
+          <Button className={btnClass} onClick={this.toggleLayer.bind(this)}>
+            <i className={btnIconClass} aria-hidden="true"></i>
+            {buttonText}
+          </Button>
+        </div>
+        <div className="source-metadata visible">
+          {this.renderLayerDates()}
+          <div dangerouslySetInnerHTML={{ __html: metadata }} />
+        </div>
+      </div>
     );
   }
 }
 
 LayerMetadataDetail.propTypes = {
   addLayer: PropTypes.func,
-  height: PropTypes.number,
   isActive: PropTypes.bool,
   layer: PropTypes.object,
   removeLayer: PropTypes.func,
