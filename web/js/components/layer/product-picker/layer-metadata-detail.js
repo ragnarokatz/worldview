@@ -279,8 +279,10 @@ class LayerMetadataDetail extends React.Component {
   render() {
     if (!this.props.layer) {
       return (
-        <div className="no-selection">
-          <h3 > No item selected. </h3>
+        <div className="no-results">
+          <i className="fa fa-globe-americas" aria-hidden="true"></i>
+          <h3> No layer selected. </h3>
+          <h5> Select a layer to view detailed info here!</h5>
         </div>
       );
     }
