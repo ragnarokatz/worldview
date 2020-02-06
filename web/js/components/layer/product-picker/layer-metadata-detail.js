@@ -282,7 +282,7 @@ class LayerMetadataDetail extends React.Component {
         <div className="no-results">
           <i className="fa fa-globe-americas" aria-hidden="true"></i>
           <h3> No layer selected. </h3>
-          <h5> Select a layer to view detailed info here!</h5>
+          <h5> Select a layer to view details here!</h5>
         </div>
       );
     }
