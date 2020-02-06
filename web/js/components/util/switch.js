@@ -3,11 +3,11 @@ import PropTypes from 'prop-types';
 
 // https://upmostly.com/tutorials/build-a-react-switch-toggle-component
 const Switch = (props) => {
-  const { color, id, active, toggle, label } = props;
+  const { color, containerId, id, active, toggle, label } = props;
   const [isActive, toggleActive] = useState(active);
   const style = color && isActive ? { backgroundColor: '#' + color } : {};
   return (
-    <div className='react-switch'>
+    <div id={containerId} className='react-switch'>
       <div className='react-switch-case switch-col'>
         <input
           className="react-switch-checkbox"
@@ -34,9 +34,13 @@ const Switch = (props) => {
     </div>
   );
 };
+Switch.defaultProps = {
+  containerId: ''
+};
 Switch.propTypes = {
   active: PropTypes.bool,
   color: PropTypes.string,
+  containerId: PropTypes.string,
   id: PropTypes.string,
   label: PropTypes.string,
   toggle: PropTypes.func

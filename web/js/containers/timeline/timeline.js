@@ -1138,23 +1138,12 @@ class Timeline extends React.Component {
                   />
                 }
 
-                {/* TEMP DATA COVERAGE PANEL OPEN/CLOSE TOGGLE */}
-                <div
-                  style={{
-                    position: 'absolute',
-                    right: '19px',
-                    bottom: '66px'
-                  }}
+                {/* Data Coverage Panel open/close handle */}
+                <div id="timeline-data-availability-panel-handle"
+                  style={{ right: Math.floor((axisWidth + 75) / 2) }}
+                  onClick={() => this.toggleDataCoveragePanel(!this.state.isDataCoveragePanelOpen)}
                 >
-                  <button
-                    style={{
-                      background: 'rgba(40, 40, 40, 0.85)',
-                      width: '57px',
-                      border: '1px solid #333',
-                      color: '#fff',
-                      borderTopRightRadius: '5px',
-                      borderTopLeftRadius: '5px'
-                    }} onClick={() => this.toggleDataCoveragePanel(!this.state.isDataCoveragePanelOpen)}><i className="fas fa-bars"></i></button>
+                  <div className="wv-timeline-data-availability-handle-chevron"></div>
                 </div>
 
                 {/* custom interval selector */}

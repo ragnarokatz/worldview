@@ -12,6 +12,7 @@ import { datesinDateRanges } from '../../modules/layers/util';
 import Scrollbars from '../util/scrollbar';
 import { Checkbox } from '../util/checkbox';
 import { Tooltip } from 'reactstrap';
+import Switch from '../util/switch';
 
 /*
  * Timeline Data Panel for layer coverage.
@@ -28,6 +29,9 @@ class TimelineData extends Component {
       checkedLayerIds: {},
       hoveredTooltip: {}
     };
+
+    this.multiLayerColors = {};
+    this.lastColor = '';
   }
 
   componentDidMount() {
@@ -249,11 +253,17 @@ class TimelineData extends Component {
   }
 
   render() {
+    const { timeScale } = this.props;
+    const { isIncludeInactiveLayersChecked } = this.state;
     //! good layer with sporadic coverage for edge cases: GRACE Liquid Water Equivalent Thickness (Mascon, CRI)
     const maxHeightScrollBar = '225px';
     const mainContainerWidth = `${this.props.axisWidth + 78}px`;
     const mainContainerLeftOffset = `${this.props.parentOffset - 10}px`;
     const animateBottomClassName = `${this.props.isDataCoveragePanelOpen ? 'animate-timeline-data-panel-slide-up' : ''}`;
+
+    const baseLineColor = '#00457B';
+    const altLineColor = '#0084eb';
+    console.log(isIncludeInactiveLayersChecked);
     return (
       <div className={`timeline-data-panel-container ${animateBottomClassName}`} style={{
         left: mainContainerLeftOffset,
@@ -262,18 +272,14 @@ class TimelineData extends Component {
         {this.props.isDataCoveragePanelOpen &&
           <div className={'timeline-data-panel'} style={{ width: mainContainerWidth }}>
             <header className={'timeline-data-panel-header'}>
-              <h3>LAYER COVERAGE</h3>
-              <Checkbox
-                checked={this.state.isIncludeInactiveLayersChecked}
-                classNames='wv-checkbox-data-matching-main'
-                id='wv-checkbox-data-matching-main'
-                label='Include Inactive Layers'
-                name='wv-checkbox-data-matching-main'
-                onCheck={(isChecked) => this.addMatchingCoverageToTimeline(isChecked)}
-                inputPosition={'right'}
-                title='Include Inactive Layers'
-                optionalCaseClassName={'timeline-data-panel-wv-checkbox-container'}
-                optionalLabelClassName={'timeline-data-panel-wv-checkbox-label'}
+              <h3 style={{ width: '150px' }}>LAYER COVERAGE</h3>
+              <Switch
+                active={isIncludeInactiveLayersChecked}
+                color='00457b'
+                id='wv-checkbox-data-matching-toggle'
+                containerId='wv-checkbox-data-matching-main'
+                label='Include Hidden Layers'
+                toggle={() => this.addMatchingCoverageToTimeline(!isIncludeInactiveLayersChecked)}
               />
               <i className="fa fa-times wv-close" onClick={this.closeModal}/>
             </header>
@@ -284,6 +290,8 @@ class TimelineData extends Component {
                   if (layer.dateRanges) {
                     multipleCoverageRanges = layer.dateRanges.length > 1;
                   }
+                  // console.log(layer);
+                  const layerPeriod = layer.period;
 
                   const options = this.getLineDimensions(layer);
                   const enabled = layer.visible;
@@ -291,7 +299,7 @@ class TimelineData extends Component {
 
                   // lighten data panel layer container on sidebar hover
                   const containerHoveredBackgroundColor = enabled ? '#e6e6e6' : 'rgba(255, 255, 255, 0.3)';
-                  const backgroundColor = enabled ? '#00457B' : 'rgba(255, 255, 255, 0.2)';
+                  const backgroundColor = enabled ? baseLineColor : 'rgba(255, 255, 255, 0.2)';
                   const textColor = enabled ? '#222' : '#999';
                   // get date range to display
                   const dateRangeStart = (layer.startDate && layer.startDate.split('T')[0]) || 'start';
@@ -338,7 +346,7 @@ class TimelineData extends Component {
                               let rangeOptions;
                               // multi day range in DAY timescale
                               // TODO: expand based on what a user can see
-                              if (rangeInterval !== 1) {
+                              if (rangeInterval !== 1 && timeScale !== 'month' && timeScale !== 'year') {
                                 const startDateLimit = new Date(this.props.frontDate);
                                 let endDateLimit = new Date(this.props.backDate);
                                 if (new Date(this.props.appNow) < endDateLimit) {
@@ -355,7 +363,7 @@ class TimelineData extends Component {
                                   const dateIntFormatted = dateInt.toISOString();
                                   multipleCoverageRangesDateIntervals[dateIntFormatted] = dateInt;
                                 });
-
+                                // console.log(index, multipleCoverageRangesDateIntervals, dateIntervalStartDates);
                                 // if at the end of dateRanges array, display results from multipleCoverageRangesDateIntervals
                                 // TODO: object ordering reliability concerns ?
                                 if (index === layer.dateRanges.length - 1) {
@@ -367,7 +375,18 @@ class TimelineData extends Component {
                                     const minMonth = rangeDate.getUTCMonth();
                                     const minDay = rangeDate.getUTCDate();
                                     const rangeDateEndLocal = new Date(minYear, minMonth, minDay + rangeInterval);
-                                    const rangeDateEnd = new Date(rangeDateEndLocal.getTime() - (rangeDateEndLocal.getTimezoneOffset() * 60000));
+                                    let rangeDateEnd = new Date(rangeDateEndLocal.getTime() - (rangeDateEndLocal.getTimezoneOffset() * 60000));
+                                    // console.log(rangeDateEnd);
+
+                                    // check if next date cuts off this range
+                                    // (e.g., 8 day interval with: currentDate = 12-27-1999, and nextDate = 1-1-2000)
+                                    if (multiDateToDisplay[index + 1]) {
+                                      const nextDateNonUniformInterval = multiDateToDisplay[index + 1];
+                                      if (nextDateNonUniformInterval < rangeDateEnd) {
+                                        rangeDateEnd = nextDateNonUniformInterval;
+                                      }
+                                    }
+
                                     rangeOptions = this.getLineDimensions(layer, rangeDate, rangeDateEnd);
 
                                     // console.log(rangeDateEndLocal, rangeDateEnd);
@@ -376,12 +395,47 @@ class TimelineData extends Component {
 
                                     const cleanRangeStart = rangeDate.toISOString().replace(/[.:]/g, '_');
                                     const cleanRangeEnd = rangeDateEnd.toISOString().replace(/[.:]/g, '_');
-                                    const backgroundMulti = index % 2 === 0
-                                      ? enabled ? '#00457B' : 'grey'
-                                      : enabled ? '#0084eb' : 'grey';
 
+                                    const checkColor = this.multiLayerColors[cleanRangeStart];
+                                    let backgroundMulti;
+                                    if (checkColor) {
+                                      backgroundMulti = checkColor;
+                                    } else {
+                                      // get previous date color
+                                      const previousDate = multiDateToDisplay[index - 1] ? multiDateToDisplay[index - 1] : '';
+                                      let cleanPreviousDate;
+                                      let previousDateColor;
+                                      if (previousDate) {
+                                        cleanPreviousDate = previousDate.toISOString().replace(/[.:]/g, '_');
+                                        previousDateColor = this.multiLayerColors[cleanPreviousDate];
+                                      }
+
+                                      // get next date color
+                                      const nextDate = multiDateToDisplay[index + 3] ? multiDateToDisplay[index + 3] : '';
+                                      let cleanNextDate;
+                                      let nextDateColor;
+                                      if (nextDate) {
+                                        cleanNextDate = nextDate.toISOString().replace(/[.:]/g, '_');
+                                        nextDateColor = this.multiLayerColors[cleanNextDate];
+                                      }
+
+                                      // conditional color based on prev/next - or - init color based on index
+                                      if (previousDateColor || nextDateColor) {
+                                        const isPrevOrNextBaseColor = previousDateColor === baseLineColor || nextDateColor === baseLineColor;
+                                        const nextColor = isPrevOrNextBaseColor ? altLineColor : baseLineColor;
+                                        backgroundMulti = nextColor;
+                                      } else {
+                                        backgroundMulti = index % 2 === 0 ? baseLineColor : altLineColor;
+                                      }
+                                      this.multiLayerColors[cleanRangeStart] = backgroundMulti;
+                                      this.lastColor = backgroundMulti;
+                                    }
+                                    // set to grey if layer disabled
+                                    backgroundMulti = enabled ? backgroundMulti : 'grey';
+
+                                    // console.log(`${cleanRangeStart.split('T')[0]} to ${cleanRangeEnd.split('T')[0]}`);
+                                    // console.log(rangeOptions);
                                     // console.log(`data-coverage-line-${layer.id}-${cleanRangeStart}-${cleanRangeEnd}`);
-                                    // console.log(rangeOptions.width);
                                     return rangeOptions.visible && (
                                       <div
                                         id={`data-coverage-line-${layer.id}-${cleanRangeStart}-${cleanRangeEnd}`}

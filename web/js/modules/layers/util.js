@@ -93,7 +93,6 @@ export function prevDateInDateRange(def, date, dateArray) {
   // check for potential next date in function passed dateArray
   const next = dateArray[closestDateIndex + 1] || null;
   const previous = closestDate ? new Date(closestDate.getTime()) : date;
-  console.log(previous, next);
   return { previous, next };
 };
 
@@ -111,8 +110,9 @@ export function datesinDateRanges(def, date, startDateLimit, endDateLimit) {
   const dateArray = [];
   let currentDate = new Date(date.getTime());
 
+  let runningMinDate;
+
   lodashEach(def.dateRanges, (dateRange) => {
-    console.log(dateRange);
     let { dateInterval } = dateRange;
     dateInterval = Number(dateInterval);
     let yearDifference;
@@ -156,15 +156,26 @@ export function datesinDateRanges(def, date, startDateLimit, endDateLimit) {
     } else if (def.period === 'daily') {
       const maxDayDate = new Date(maxYear, maxMonth, maxDay + dateInterval);
 
+      if (runningMinDate && dateArray[dateArray.length - 1] > minDate) {
+        currentDate = minDate;
+      }
+
       // conditional revision of maxEndDate for data availability partial coverage
       let maxEndDate = maxDayDate;
       if (startDateLimit && endDateLimit) {
-        const frontDateWithinRange = startDateLimit > minDate && startDateLimit < maxEndDate;
-        const backDateWithinRange = endDateLimit < maxEndDate && endDateLimit > minDate;
+        // console.log(startDateLimit, minDate, maxEndDate, endDateLimit);
+        const startDateLimitTime = startDateLimit.getTime();
+        const minDateTime = minDate.getTime();
+        const maxEndDateTime = maxEndDate.getTime();
+        const endDateLimitTime = endDateLimit.getTime();
+        const frontDateWithinRange = startDateLimitTime >= minDateTime && startDateLimitTime <= maxEndDateTime;
+        const backDateWithinRange = endDateLimitTime <= maxEndDateTime && endDateLimitTime >= minDateTime;
         if (frontDateWithinRange || backDateWithinRange) {
           maxEndDate = endDateLimit;
         }
       }
+
+      // console.log(currentDate, minDate, currentDate, maxEndDate);
       if (currentDate >= minDate && currentDate <= maxEndDate) {
         dayDifference = util.dayDiff(minDate, maxEndDate);
         // handle non-1 day intervals to prevent over pushing unused dates to dateArray
@@ -193,7 +204,13 @@ export function datesinDateRanges(def, date, startDateLimit, endDateLimit) {
       for (i = 0; i <= (dayDifference + 1); i++) {
         let day = new Date(minYear, minMonth, minDay + i * dateInterval);
         day = new Date(day.getTime() - (day.getTimezoneOffset() * 60000));
-        console.log(day.toISOString());
+        // console.log(day.toISOString());
+
+        if (day.getTime() > maxEndDate.getTime()) {
+          // console.log('over time', day, maxEndDate);
+          continue;
+        }
+
         if (dateArray.length > 0) {
           // prevent earlier dates from being added after later dates while building dateArray
           if (day < dateArray[dateArray.length - 1]) {
@@ -203,13 +220,16 @@ export function datesinDateRanges(def, date, startDateLimit, endDateLimit) {
               if (!endDateFound) {
                 const dateCheck = dateArray[j];
 
+                // console.log(day, dateCheck, endDateFound);
+
                 const dayTime = day.getTime();
                 const dateCheckTime = dateCheck.getTime();
 
                 if (dayTime <= dateCheckTime) {
                   dateArray.pop();
                 } else {
-                  dateArray[dateArray.length - 1] = day;
+                  dateArray.push(day);
+                  // dateArray[dateArray.length - 1] = day;
                   endDateFound = true;
                   continue;
                 }
@@ -230,7 +250,8 @@ export function datesinDateRanges(def, date, startDateLimit, endDateLimit) {
         if (minStartDayDate) {
           const dayTime = day.getTime();
           const minStartDayDateTime = minStartDayDate.getTime();
-          console.log(day > minStartDayDate, day < maxDayDate);
+          // console.log(minStartDayDate);
+          // console.log(day > minStartDayDate, day < maxDayDate);
           if (dayTime === minStartDayDateTime || (day > minStartDayDate && day < maxDayDate)) {
             dateArray.push(day);
           }
@@ -269,8 +290,10 @@ export function datesinDateRanges(def, date, startDateLimit, endDateLimit) {
         );
       }
     }
+
+    runningMinDate = minDate;
   });
-  console.log(dateArray, dateArray[0], dateArray[dateArray.length - 1]);
+  // console.log(dateArray, dateArray[0], dateArray[dateArray.length - 1]);
   return dateArray;
 };
 
