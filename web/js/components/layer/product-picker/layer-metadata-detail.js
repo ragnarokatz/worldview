@@ -286,7 +286,7 @@ class LayerMetadataDetail extends React.Component {
         </div>
       );
     }
-    const { layer, selectedProjection, isActive } = this.props;
+    const { layer, selectedProjection, isActive, showMetadataForLayer } = this.props;
     const { title, subtitle, track, metadata } = layer;
     const layerTitle = !track ? title : `${title} (${getOrbitTrackTitle(layer)})`;
     const previewUrl = 'images/layers/previews/' + selectedProjection + '/' + layer.id + '.jpg';
@@ -298,6 +298,9 @@ class LayerMetadataDetail extends React.Component {
         <div className="layers-all-header">
           {!track ? this.renderSplitTitle(layerTitle) : <h3>{layerTitle}</h3>}
           {subtitle && <h5>{subtitle}</h5>}
+          <Button className="close-details" onClick={() => showMetadataForLayer(null)}>
+            <i className="fa fa-chevron-down" aria-hidden="true"></i>
+          </Button>
         </div>
         <div className="text-center">
           <a href={previewUrl} rel="noopener noreferrer" target="_blank">
@@ -324,7 +327,8 @@ LayerMetadataDetail.propTypes = {
   isActive: PropTypes.bool,
   layer: PropTypes.object,
   removeLayer: PropTypes.func,
-  selectedProjection: PropTypes.string
+  selectedProjection: PropTypes.string,
+  showMetadataForLayer: PropTypes.func
 };
 
 export default LayerMetadataDetail;
